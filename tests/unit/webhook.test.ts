@@ -25,3 +25,8 @@ describe("safeNext", () => {
   it("allows relative paths", () => expect(safeNext("/jobs/1")).toBe("/jobs/1"));
   it.each(["//evil.com", "https://evil.com", "/\\evil.com", ""])("blocks %s", (v) => expect(safeNext(v)).toBe("/marketplace"));
 });
+
+import { initials } from "@/lib/utils";
+describe("initials", () => {
+  it.each([["Pavan (Demo Admin)", "PD"], ["Ravi Kumar", "RK"], ["  ", "?"], ["अनिल शर्मा", "अश"]])("%s → %s", (n, i) => expect(initials(n)).toBe(i));
+});

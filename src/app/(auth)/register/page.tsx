@@ -10,7 +10,7 @@ export default async function RegisterPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("companies")
-    .select("id, name, company_domains(domain)")
+    .select("id, name, company_domains!inner(domain)") // only companies people can actually verify with
     .order("name");
 
   const companies: CompanyOption[] = (data ?? []).map((c) => ({

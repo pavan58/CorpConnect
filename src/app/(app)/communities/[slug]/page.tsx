@@ -31,7 +31,7 @@ export default async function CommunityPage({ params }: { params: Promise<{ slug
   const [{ data: membership }, { data: postsRaw }] = await Promise.all([
     supabase.from("community_members").select("user_id").eq("community_id", community.id).eq("user_id", viewer.id).maybeSingle(),
     supabase.from("community_posts")
-      .select("id, body, created_at, author_id, author:profiles(id, full_name, designation, company:companies(name))")
+      .select("id, body, created_at, author_id, author:profiles!community_posts_author_id_fkey(id, full_name, designation, company:companies(name))")
       .eq("community_id", community.id).eq("is_removed", false)
       .order("created_at", { ascending: false }).limit(30),
   ]);

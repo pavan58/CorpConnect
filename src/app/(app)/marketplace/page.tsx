@@ -29,7 +29,7 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
 
   let query = supabase
     .from("product_listings")
-    .select("id, title, price_inr, negotiable, condition, pickup_point, status, created_at, seller:profiles(full_name, company:companies(name)), product_images(storage_path, position)")
+    .select("id, title, price_inr, negotiable, condition, pickup_point, status, created_at, seller:profiles!product_listings_seller_id_fkey(full_name, company:companies(name)), product_images(storage_path, position)")
     .order("created_at", { ascending: false })
     .limit(60);
 

@@ -35,7 +35,7 @@ export default async function ListingPage({ params, searchParams }: { params: Pr
   const [{ data }, { data: saved }] = await Promise.all([
     supabase
       .from("product_listings")
-      .select("id, seller_id, title, description, category, condition, price_inr, negotiable, zone_code, pickup_point, status, created_at, seller:profiles(id, full_name, designation, work_location_pune, company:companies(name)), product_images(storage_path, position)")
+      .select("id, seller_id, title, description, category, condition, price_inr, negotiable, zone_code, pickup_point, status, created_at, seller:profiles!product_listings_seller_id_fkey(id, full_name, designation, work_location_pune, company:companies(name)), product_images(storage_path, position)")
       .eq("id", id)
       .maybeSingle(),
     supabase.from("saved_listings").select("listing_id").eq("user_id", viewer.id).eq("listing_id", id).maybeSingle(),

@@ -20,7 +20,8 @@ export function timeAgo(iso: string, now = Date.now()) {
 }
 
 export function initials(name: string) {
-  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]!.toUpperCase()).join("");
+  const words = name.replace(/[^\p{L}\p{M}\p{N}\s]/gu, " ").split(/\s+/).filter(Boolean);
+  return words.slice(0, 2).map((p) => p[0]!.toUpperCase()).join("") || "?";
 }
 
 /** Only allow same-origin relative redirects (prevents open redirects via ?next=). */
