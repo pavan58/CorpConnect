@@ -8,7 +8,7 @@ A private network for verified employees in Pune's tech corridors: an electronic
 |---|---|
 | App | Next.js 15.5 (App Router, Server Actions, TypeScript), React 19.2 |
 | UI | Tailwind CSS v4, lucide-react, shadcn-style primitives in `src/components/ui` |
-| Data / auth | Supabase: Postgres 16 + RLS, Auth (password sessions), Storage (listing photos), Realtime (chat) |
+| Data / auth | Supabase: Postgres (17 on new projects; schema also tested on 16) + RLS, Auth (password sessions), Storage (listing photos), Realtime (chat) |
 | Email | Resend REST API (OTP + password-reset codes), bounce/complaint webhook |
 | Hosting | Vercel (`bom1` / Mumbai), deployed by GitHub Actions |
 
