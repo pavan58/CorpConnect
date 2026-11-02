@@ -51,33 +51,16 @@ Allow about an hour. You need accounts on **Supabase** (Pro plan recommended, fo
 4. Under **Project → Settings → Deployment Protection**, create a **Protection Bypass for Automation** secret. That is `VERCEL_AUTOMATION_BYPASS_SECRET`.
 5. Add the domains `corpconnect.in` and `www.corpconnect.in`. The DNS records are in `dns/corpconnect.in.zone`.
 
-`vercel.json` turns off Vercel's own Git deployments, so only the GitHub workflow deploys, after the tests pass.
+Vercel's GitHub integration deploys every push to `main`. Pull requests get preview deployments.
 
-## 4. GitHub Actions
+## 4. GitHub Actions (tests only)
 
-1. Add these repo secrets under **Settings → Secrets and variables → Actions**:
-   - `VERCEL_TOKEN`
-   - `VERCEL_ORG_ID`
-   - `VERCEL_PROJECT_ID` (the org ID and project ID are in `.vercel/project.json`)
-   - `VERCEL_AUTOMATION_BYPASS_SECRET`
-   - `SUPABASE_ACCESS_TOKEN`
-   - `SUPABASE_DB_PASSWORD`
-   - `SUPABASE_PROJECT_REF`
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY`
+`.github/workflows/ci.yml` runs on every push and pull request:
+- lint, typecheck, unit tests and a production build
+- the RLS suite on plain Postgres 16
+- the RLS suite on a real `supabase start` stack, plus `supabase db lint`
 
-   You can fill `.env.deploy` and loop over it:
-
-   ```bash
-   while IFS='=' read -r k v; do [[ -n "$k" && "$k" != \#* ]] && gh secret set "$k" --body "$v"; done < .env.deploy
-   ```
-
-2. Under **Settings → Environments → New environment**, create `production` and add yourself as a **required reviewer**. Every deploy then waits for your approval.
-3. Push to `main`. `.github/workflows/ci-cd.yml` runs these jobs:
-   - lint, typecheck, unit tests and a production build
-   - the RLS suite on plain Postgres 16
-   - the RLS suite on a real `supabase start` stack, plus `supabase db lint`
-   - after your approval: DB migrations, then `vercel deploy --skip-domain`, then a smoke test of `/api/health`, then `vercel promote` (zero downtime)
+No GitHub secrets are needed. Apply new database migrations with `./scripts/deploy-db.sh` before merging the code that depends on them.
 
 ## 5. First admin
 
