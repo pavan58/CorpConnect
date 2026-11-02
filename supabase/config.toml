@@ -1,0 +1,46 @@
+# Local development stack: `supabase start` (needs Docker).
+# Production auth settings are pushed by scripts/configure-auth.sh.
+project_id = "corpconnect"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 16
+
+[db.seed]
+enabled = false
+
+[realtime]
+enabled = true
+
+[storage]
+enabled = true
+file_size_limit = "5MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/**"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+# Accounts are created only by the server (registerEmployee) after the
+# corporate-domain check. Public sign-up through the anon key stays off.
+enable_signup = false
+minimum_password_length = 10
+
+[auth.email]
+enable_signup = false
+enable_confirmations = false
+double_confirm_changes = true
+
+[studio]
+enabled = true
+port = 54323
+
