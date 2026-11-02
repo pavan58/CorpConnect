@@ -5,46 +5,52 @@
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
-  --color-background: oklch(0.985 0.002 260);
-  --color-foreground: oklch(0.21 0.02 265);
+  --color-background: oklch(0.987 0.008 170);
+  --color-foreground: oklch(0.24 0.03 200);
   --color-card: oklch(1 0 0);
-  --color-muted: oklch(0.965 0.005 260);
-  --color-muted-foreground: oklch(0.52 0.02 260);
-  --color-border: oklch(0.91 0.01 260);
-  --color-input: oklch(0.89 0.01 260);
-  --color-ring: oklch(0.55 0.2 275);
-  --color-primary: oklch(0.51 0.21 275);
+  --color-muted: oklch(0.962 0.012 175);
+  --color-muted-foreground: oklch(0.5 0.03 200);
+  --color-border: oklch(0.91 0.018 175);
+  --color-input: oklch(0.88 0.022 175);
+  --color-ring: oklch(0.62 0.13 180);
+  --color-primary: oklch(0.55 0.12 182);
   --color-primary-foreground: oklch(0.99 0 0);
-  --color-accent: oklch(0.95 0.03 275);
-  --color-accent-foreground: oklch(0.38 0.17 275);
-  --color-success: oklch(0.6 0.15 155);
-  --color-success-soft: oklch(0.95 0.05 155);
-  --color-warning: oklch(0.72 0.16 70);
+  --color-accent: oklch(0.95 0.045 172);
+  --color-accent-foreground: oklch(0.39 0.09 185);
+  --color-highlight: oklch(0.7 0.16 38);
+  --color-highlight-soft: oklch(0.96 0.035 50);
+  --color-sky: oklch(0.72 0.12 225);
+  --color-success: oklch(0.58 0.14 152);
+  --color-success-soft: oklch(0.95 0.05 152);
+  --color-warning: oklch(0.68 0.15 65);
   --color-warning-soft: oklch(0.96 0.05 85);
-  --color-destructive: oklch(0.58 0.22 27);
-  --color-destructive-soft: oklch(0.96 0.03 27);
+  --color-destructive: oklch(0.6 0.2 25);
+  --color-destructive-soft: oklch(0.96 0.03 25);
 
-  --radius-lg: 0.75rem;
+  --radius-lg: 0.875rem;
   --radius-md: 0.5rem;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: oklch(0.17 0.015 265);
-    --color-foreground: oklch(0.96 0.005 260);
-    --color-card: oklch(0.21 0.018 265);
-    --color-muted: oklch(0.25 0.018 265);
-    --color-muted-foreground: oklch(0.7 0.015 260);
-    --color-border: oklch(0.3 0.02 265);
-    --color-input: oklch(0.34 0.02 265);
-    --color-ring: oklch(0.68 0.17 275);
-    --color-primary: oklch(0.66 0.18 275);
-    --color-primary-foreground: oklch(0.15 0.02 265);
-    --color-accent: oklch(0.3 0.06 275);
-    --color-accent-foreground: oklch(0.9 0.06 275);
-    --color-success-soft: oklch(0.3 0.06 155);
+    --color-background: oklch(0.18 0.02 205);
+    --color-foreground: oklch(0.96 0.01 175);
+    --color-card: oklch(0.22 0.022 205);
+    --color-muted: oklch(0.26 0.022 205);
+    --color-muted-foreground: oklch(0.72 0.02 190);
+    --color-border: oklch(0.31 0.025 200);
+    --color-input: oklch(0.35 0.025 200);
+    --color-ring: oklch(0.72 0.12 178);
+    --color-primary: oklch(0.72 0.12 178);
+    --color-primary-foreground: oklch(0.17 0.02 205);
+    --color-accent: oklch(0.3 0.05 180);
+    --color-accent-foreground: oklch(0.88 0.08 172);
+    --color-highlight: oklch(0.75 0.14 40);
+    --color-highlight-soft: oklch(0.32 0.06 45);
+    --color-sky: oklch(0.75 0.11 225);
+    --color-success-soft: oklch(0.3 0.06 152);
     --color-warning-soft: oklch(0.32 0.06 80);
-    --color-destructive-soft: oklch(0.3 0.07 27);
+    --color-destructive-soft: oklch(0.3 0.07 25);
   }
 }
 
@@ -58,4 +64,18 @@
     -webkit-font-smoothing: antialiased;
   }
   :focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
+}
+
+@utility text-gradient {
+  background-image: linear-gradient(100deg, var(--color-primary), var(--color-sky) 55%, var(--color-highlight));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-hero {
+  background:
+    radial-gradient(60rem 30rem at 85% -10%, color-mix(in oklch, var(--color-sky) 22%, transparent), transparent 70%),
+    radial-gradient(50rem 28rem at -10% 10%, color-mix(in oklch, var(--color-primary) 20%, transparent), transparent 70%),
+    radial-gradient(30rem 20rem at 60% 90%, color-mix(in oklch, var(--color-highlight) 14%, transparent), transparent 70%);
 }

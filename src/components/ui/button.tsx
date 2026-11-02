@@ -7,7 +7,7 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
+        default: "bg-gradient-to-r from-primary to-[color-mix(in_oklch,var(--color-primary)_75%,var(--color-sky))] text-primary-foreground hover:brightness-105 shadow-sm",
         secondary: "bg-muted text-foreground hover:bg-muted/70",
         outline: "border border-input bg-card hover:bg-muted",
         ghost: "hover:bg-muted",

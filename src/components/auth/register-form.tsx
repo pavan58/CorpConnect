@@ -8,13 +8,14 @@ import { HUBS, ZONES } from "@/lib/pune";
 import { Field, Input, Select } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Alert } from "@/components/ui/misc";
+import { CompanyCombobox, type CompanyOption, type CompanyValue } from "./company-combobox";
 
-export type CompanyOption = { id: string; name: string; domains: string[] };
+export type { CompanyOption };
 
 export function RegisterForm({ companies }: { companies: CompanyOption[] }) {
   const [state, action] = useActionState(registerEmployee, initialState);
   const [email, setEmail] = useState("");
-  const [companyId, setCompanyId] = useState("");
+  const [picked, setPicked] = useState<CompanyValue | null>(null);
   const [touchedCompany, setTouchedCompany] = useState(false);
 
   const domainToCompany = useMemo(() => {
@@ -28,7 +29,8 @@ export function RegisterForm({ companies }: { companies: CompanyOption[] }) {
   const detected = domain && !isPublic
     ? domainCandidates(domain).map((d) => domainToCompany.get(d)).find(Boolean)
     : undefined;
-  const effectiveCompany = touchedCompany ? companyId : detected?.id ?? companyId;
+  // Until the user touches the company field, follow the email domain.
+  const company: CompanyValue | null = touchedCompany ? picked : detected ? { id: detected.id, name: detected.name } : picked;
 
   const fe = state.fieldErrors ?? {};
   let emailHint: string | undefined = "Your official company address, e.g. name@tcs.com";
@@ -60,15 +62,20 @@ export function RegisterForm({ companies }: { companies: CompanyOption[] }) {
         <Input id="password" name="password" type="password" autoComplete="new-password" required minLength={10} maxLength={72} aria-invalid={!!fe.password} />
       </Field>
 
-      <Field label="Company" htmlFor="companyId" errors={fe.companyId}>
-        <Select
-          id="companyId" name="companyId" required value={effectiveCompany}
-          onChange={(e) => { setCompanyId(e.target.value); setTouchedCompany(true); }}
-          aria-invalid={!!fe.companyId}
-        >
-          <option value="" disabled>Select your company</option>
-          {companies.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </Select>
+      <Field
+        label="Company"
+        htmlFor="companySearch"
+        errors={fe.companyId ?? fe.companyName}
+        hint={company && !company.id
+          ? `“${company.name}” isn't on CorpConnect yet. We'll send it to our team to add when you submit.`
+          : `${companies.length} Pune employers listed. Type to search, or add yours.`}
+      >
+        <CompanyCombobox
+          companies={companies}
+          value={company}
+          onChange={(v) => { setPicked(v); setTouchedCompany(true); }}
+          invalid={!!(fe.companyId ?? fe.companyName)}
+        />
       </Field>
 
       <Field label="Designation" htmlFor="designation" errors={fe.designation}>

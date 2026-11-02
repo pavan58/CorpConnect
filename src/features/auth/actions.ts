@@ -30,10 +30,14 @@ const registerSchema = z.object({
   fullName: z.string().trim().min(2, "Enter your full name").max(80),
   corporateEmail: z.string().trim().toLowerCase().email("Enter a valid email").max(254),
   password,
-  companyId: z.string().uuid("Select your company"),
+  companyId: z.union([z.literal(""), z.string().uuid()]).optional(),
+  companyName: z.string().trim().max(120).optional(),
   designation: z.string().trim().min(2, "Enter your designation").max(80),
   workLocation: z.enum(codes(HUBS), { errorMap: () => ({ message: "Select your Pune work hub" }) }),
   acceptTerms: z.literal("on", { errorMap: () => ({ message: "Please accept the terms" }) }),
+}).refine((v) => !!v.companyId || (v.companyName?.length ?? 0) >= 2, {
+  path: ["companyId"],
+  message: "Search for your company, or add it",
 });
 
 type Admin = SupabaseClient;
@@ -132,17 +136,26 @@ export async function registerEmployee(_prev: ActionState, formData: FormData): 
     .sort((a, b) => b.domain.length - a.domain.length)[0];
 
   if (!match) {
+    // Unknown domain: never auto-approve (anyone can own a domain). Log it with
+    // the company the user named so an admin can verify and approve it.
+    let hint = input.companyName || null;
+    if (!hint && input.companyId) {
+      const { data: picked } = await admin.from("companies").select("name").eq("id", input.companyId).maybeSingle();
+      hint = picked?.name ?? null;
+    }
     await admin.from("company_domain_requests").upsert(
-      { domain, requested_email: input.corporateEmail },
-      { onConflict: "domain,requested_email", ignoreDuplicates: true },
+      { domain, requested_email: input.corporateEmail, company_hint: hint },
+      { onConflict: "domain,requested_email" },
     );
     return {
       fieldErrors: {
-        corporateEmail: [`@${domain} isn't on CorpConnect Pune yet. We've logged a request for our team to review it.`],
+        corporateEmail: [
+          `@${domain} isn't verified on CorpConnect Pune yet${hint ? ` for ${hint}` : ""}. We've sent it to our team. You can register once it's approved (usually within 1 working day).`,
+        ],
       },
     };
   }
-  if (match.company_id !== input.companyId) {
+  if (input.companyId && match.company_id !== input.companyId) {
     const name = (match.companies as unknown as { name: string }).name;
     return { fieldErrors: { companyId: [`@${domain} belongs to ${name}. Select ${name} as your company.`] } };
   }

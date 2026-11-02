@@ -41,17 +41,17 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     count("product_listings", "status", "active"),
     count("job_listings", "status", "open"),
     admin.from("user_reports").select("id, target_type, target_id, reason, details, created_at, reporter:profiles!user_reports_reporter_id_fkey(full_name)").eq("status", "open").order("created_at").limit(50),
-    admin.from("company_domain_requests").select("id, domain, requested_email, created_at").eq("status", "pending").order("created_at").limit(50),
+    admin.from("company_domain_requests").select("id, domain, requested_email, company_hint, created_at").eq("status", "pending").order("created_at").limit(50),
     admin.from("companies").select("id, name").order("name"),
     isAdmin ? usersQ : Promise.resolve({ data: [] }),
   ]);
   const reports = (reportsRes.data ?? []) as unknown as Report[];
   const users = (usersRes.data ?? []) as unknown as UserRow[];
   // group pending domain requests by domain
-  const domains = new Map<string, { id: string; count: number; first: string; sample: string }>();
+  const domains = new Map<string, { id: string; count: number; first: string; sample: string; hint: string | null }>();
   for (const r of domainsRes.data ?? []) {
     const d = domains.get(r.domain);
-    if (d) d.count++; else domains.set(r.domain, { id: r.id, count: 1, first: r.created_at, sample: r.requested_email });
+    if (d) { d.count++; d.hint ??= r.company_hint; } else domains.set(r.domain, { id: r.id, count: 1, first: r.created_at, sample: r.requested_email, hint: r.company_hint });
   }
 
   const stats = [
@@ -99,7 +99,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
             {domains.size === 0 ? <p className="text-sm text-muted-foreground">No pending domains.</p> : [...domains.entries()].map(([domain, d]) => (
               <div key={domain} className="rounded-md border p-3 text-sm">
                 <p><span className="font-medium">@{domain}</span> <span className="text-muted-foreground">· {d.count} signup attempt{d.count > 1 ? "s" : ""} · first {timeAgo(d.first)}</span></p>
-                <p className="text-xs text-muted-foreground">e.g. {d.sample}</p>
+                <p className="text-xs text-muted-foreground">e.g. {d.sample}{d.hint ? <> · says they work at <span className="font-medium text-foreground">{d.hint}</span></> : null}</p>
                 {isAdmin ? (
                   <div className="mt-2 space-y-2">
                     <form action={approveDomain} className="flex flex-wrap gap-2">
@@ -108,7 +108,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                         <option value="">New company…</option>
                         {(companiesRes.data ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                       </Select>
-                      <Input name="newCompanyName" placeholder="New company name" className="h-8 flex-1 min-w-40 text-xs" />
+                      <Input name="newCompanyName" placeholder="New company name" defaultValue={d.hint ?? ""} className="h-8 flex-1 min-w-40 text-xs" />
                       <Button size="sm">Approve</Button>
                     </form>
                     <form action={rejectDomain.bind(null, d.id)}><Button size="sm" variant="ghost">Reject</Button></form>

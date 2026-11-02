@@ -55,7 +55,7 @@ export function otpEmail(opts: { name: string; code: string; purpose: "verify_em
   const html = `<!doctype html><html><body style="margin:0;background:#f4f5f7;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#111827">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="100%" style="max-width:480px;background:#ffffff;border-radius:12px;padding:32px" cellpadding="0" cellspacing="0">
-<tr><td style="font-size:18px;font-weight:700;color:#4338ca">CorpConnect · Pune</td></tr>
+<tr><td style="font-size:18px;font-weight:700;color:#0f766e">CorpConnect · Pune</td></tr>
 <tr><td style="padding-top:24px;font-size:15px;line-height:22px">Hi ${escape(opts.name)},<br>${lead}</td></tr>
 <tr><td style="padding:24px 0;font-size:34px;font-weight:700;letter-spacing:10px;font-family:ui-monospace,Menlo,Consolas,monospace">${opts.code}</td></tr>
 <tr><td style="font-size:13px;line-height:20px;color:#6b7280">This code expires in 10 minutes. CorpConnect will never ask you for this code by phone or chat. If you didn't request it, you can ignore this email.</td></tr>
