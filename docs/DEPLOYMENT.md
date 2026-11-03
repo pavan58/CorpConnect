@@ -1,6 +1,6 @@
 # Deploying CorpConnect Pune to production
 
-Allow about an hour. You need accounts on **Supabase** (Pro plan recommended, for daily backups and the PITR add-on), **Vercel**, **Resend**, and DNS access for `corpconnect.in`. Install these tools: `node 22`, `supabase` CLI, `vercel` CLI, `gh`, `jq`, `psql`.
+Allow about an hour. You need accounts on **Supabase** (Pro plan recommended, for daily backups and the PITR add-on), **Vercel**, **Resend**, and DNS access for `corpconnect.it.com`. Install these tools: `node 22`, `supabase` CLI, `vercel` CLI, `gh`, `jq`, `psql`.
 
 ## 1. Supabase project
 
@@ -18,7 +18,7 @@ Allow about an hour. You need accounts on **Supabase** (Pro plan recommended, fo
 5. Turn off public sign-up and set the site URL:
 
    ```bash
-   APP_URL=https://corpconnect.in ./scripts/configure-auth.sh
+   APP_URL=https://corpconnect.it.com ./scripts/configure-auth.sh
    ```
 
 6. In the dashboard, open **Realtime → Settings** and turn off **Allow public access**. Chat only uses authenticated `postgres_changes`, which respects RLS.
@@ -31,12 +31,12 @@ Allow about an hour. You need accounts on **Supabase** (Pro plan recommended, fo
    RESEND_API_KEY=<full-access key> ./scripts/resend-dns.sh
    ```
 
-2. Add the records from the output, plus `dns/corpconnect.in.zone`, at your DNS host. Then re-run the script until every record reads `verified`.
-   - SPF goes on `send.corpconnect.in`, not the root domain.
+2. Add the records from the output, plus `dns/corpconnect.it.com.zone`, at your DNS host. Then re-run the script until every record reads `verified`.
+   - SPF goes on `send.corpconnect.it.com`, not the root domain.
    - DMARC starts at `p=none`. Move it to `quarantine`, then `reject`, after about 4 weeks of clean reports.
 3. Create a **sending-only** API key for the app. That is `RESEND_API_KEY`.
-4. Under **Webhooks**, add `https://corpconnect.in/api/webhooks/resend` for the `email.bounced` and `email.complained` events. Copy the signing secret: that is `RESEND_WEBHOOK_SECRET`.
-5. Ask the IT or mail team at your launch companies to allow-list `no-reply@corpconnect.in`. Corporate filters (Mimecast, Proofpoint, M365 quarantine) often hold mail from new senders.
+4. Under **Webhooks**, add `https://corpconnect.it.com/api/webhooks/resend` for the `email.bounced` and `email.complained` events. Copy the signing secret: that is `RESEND_WEBHOOK_SECRET`.
+5. Ask the IT or mail team at your launch companies to allow-list `no-reply@corpconnect.it.com`. Corporate filters (Mimecast, Proofpoint, M365 quarantine) often hold mail from new senders.
 
 ## 3. Vercel
 
@@ -49,7 +49,7 @@ Allow about an hour. You need accounts on **Supabase** (Pro plan recommended, fo
    ```
 
 4. Under **Project → Settings → Deployment Protection**, create a **Protection Bypass for Automation** secret. That is `VERCEL_AUTOMATION_BYPASS_SECRET`.
-5. Add the domains `corpconnect.in` and `www.corpconnect.in`. The DNS records are in `dns/corpconnect.in.zone`.
+5. Add the domains `corpconnect.it.com` and `www.corpconnect.it.com`. The DNS records are in `dns/corpconnect.it.com.zone`.
 
 Vercel's GitHub integration deploys every push to `main`. Pull requests get preview deployments.
 
@@ -73,7 +73,7 @@ SUPABASE_DB_URL='postgresql://postgres.<ref>:<password>@aws-0-ap-south-1.pooler.
 
 ## 6. Launch checklist
 
-- [ ] `curl https://corpconnect.in/api/health` returns `"status":"ok"`.
+- [ ] `curl https://corpconnect.it.com/api/health` returns `"status":"ok"`.
 - [ ] Register with a real `@tcs.com`, `@infosys.com` or other launch-company address. The code arrives within 1 minute and doesn't land in spam.
 - [ ] `@gmail.com` is rejected on the form and on the server.
 - [ ] An unknown corporate domain shows up under **Admin → Company domain requests**.

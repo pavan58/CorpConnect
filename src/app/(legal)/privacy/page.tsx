@@ -22,7 +22,7 @@ export default function Privacy() {
       <h2>Processors</h2>
       <p>Supabase (database, authentication, file storage), Vercel (hosting) and Resend (email delivery) process data on our behalf.</p>
       <h2>Your rights</h2>
-      <p>You can access and correct your profile at any time and ask us to delete your account by writing to privacy@corpconnect.in. We respond within 30 days.</p>
+      <p>You can access and correct your profile at any time and ask us to delete your account by writing to privacy@corpconnect.it.com. We respond within 30 days.</p>
     </>
   );
 }

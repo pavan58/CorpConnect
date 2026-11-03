@@ -16,7 +16,7 @@ SECRET=(SUPABASE_SERVICE_ROLE_KEY RESEND_API_KEY RESEND_WEBHOOK_SECRET OTP_SECRE
 for k in "${PUBLIC[@]}" "${SECRET[@]}"; do
   [[ -n "${!k:-}" ]] || { echo "Missing value for $k in $FILE"; exit 1; }
 done
-[[ "$NEXT_PUBLIC_APP_URL" == https://* ]] || { echo "NEXT_PUBLIC_APP_URL must be https (e.g. https://corpconnect.in)"; exit 1; }
+[[ "$NEXT_PUBLIC_APP_URL" == https://* ]] || { echo "NEXT_PUBLIC_APP_URL must be https (e.g. https://corpconnect.it.com)"; exit 1; }
 
 for k in "${PUBLIC[@]}"; do
   printf '%s' "${!k}" | vercel env add "$k" production --force --token "$VERCEL_TOKEN" >/dev/null

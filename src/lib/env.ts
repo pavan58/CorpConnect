@@ -15,7 +15,7 @@ export const serverEnv = {
     return v;
   },
   resendApiKey: () => process.env.RESEND_API_KEY ?? "",
-  resendFrom: () => process.env.RESEND_FROM_EMAIL ?? "CorpConnect <no-reply@corpconnect.in>",
+  resendFrom: () => process.env.RESEND_FROM_EMAIL ?? "CorpConnect <no-reply@corpconnect.it.com>",
   appUrl: () => process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   isProd: () => process.env.NODE_ENV === "production",
 };

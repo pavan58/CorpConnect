@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
  * Resend → CorpConnect delivery events. Hard bounces and spam complaints are
  * added to email_suppressions so we stop sending OTPs to dead or hostile
  * addresses (protects the sending domain's reputation).
- * Configure in Resend: Webhooks → https://corpconnect.in/api/webhooks/resend,
+ * Configure in Resend: Webhooks → https://corpconnect.it.com/api/webhooks/resend,
  * events email.bounced + email.complained. Put the signing secret in RESEND_WEBHOOK_SECRET.
  */
 export async function POST(req: NextRequest) {

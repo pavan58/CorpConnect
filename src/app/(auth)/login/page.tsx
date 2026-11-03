@@ -16,7 +16,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       </CardHeader>
       <CardContent className="space-y-4">
         {sp.reset ? <Alert tone="success">Password updated. Sign in with your new password.</Alert> : null}
-        {sp.error === "suspended" ? <Alert tone="error">This account is suspended. Contact support@corpconnect.in.</Alert> : null}
+        {sp.error === "suspended" ? <Alert tone="error">This account is suspended. Contact support@corpconnect.it.com.</Alert> : null}
         <LoginForm next={sp.next} />
         <div className="flex justify-between text-sm">
           <Link href="/forgot-password" className="text-muted-foreground hover:text-foreground">Forgot password?</Link>

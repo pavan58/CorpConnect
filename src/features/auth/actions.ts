@@ -290,7 +290,7 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
   }
   if (profile.verification_status === "suspended") {
     await supabase.auth.signOut();
-    return { message: "This account is suspended. Contact support@corpconnect.in." };
+    return { message: "This account is suspended. Contact support@corpconnect.it.com." };
   }
   if (profile.verification_status === "unverified") redirect("/verify");
   redirect(safeNext(parsed.data.next));

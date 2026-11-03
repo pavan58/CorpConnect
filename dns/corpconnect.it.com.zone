@@ -1,0 +1,20 @@
+; corpconnect.it.com — DNS records (Namecheap → Domain List → Manage → Advanced DNS).
+; "Host" values are relative to corpconnect.it.com.
+;
+; Website (Vercel)
+@                 IN A      76.76.21.21
+www               IN CNAME  cname.vercel-dns.com.
+;
+; Sending email (Resend, region ap-northeast-1). Return-Path + SPF live on "send",
+; so they don't collide with the root SPF used by Namecheap email forwarding.
+resend._domainkey IN TXT    "p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDU1rZ0mSL4jFCjjGCW8gJPwe07ZGXEJ0p0XuN8TYcA85L0Jo5/lWr2JOxlnVuo1uprPbpC4o1b7xwNezqU3/gIqMgyxsEb+15GPV7HGLaqVztaZNo8nrGL8p/3dDdC4wmr6vIqnYY0NrdAZ2bjCHPO26siVKmiq4aoO4oxOKCLTwIDAQAB"
+send              IN MX 10  feedback-smtp.ap-northeast-1.amazonses.com.
+send              IN TXT    "v=spf1 include:amazonses.com ~all"
+rsend             IN CNAME  send.forge.rmta.net.
+;
+; DMARC: start at p=none; move to quarantine, then reject, after ~4 clean weeks.
+_dmarc            IN TXT    "v=DMARC1; p=none; adkim=r; aspf=r"
+;
+; Keep Namecheap's existing root MX (eforward*) and root SPF
+; ("v=spf1 include:spf.efwd.registrar-servers.com ~all") if you use Namecheap
+; email forwarding for support@ / privacy@.

@@ -5,7 +5,7 @@
 # Env: SUPABASE_ACCESS_TOKEN SUPABASE_PROJECT_REF [APP_URL]
 set -euo pipefail
 : "${SUPABASE_ACCESS_TOKEN:?}" "${SUPABASE_PROJECT_REF:?}"
-APP_URL="${APP_URL:-https://corpconnect.in}"
+APP_URL="${APP_URL:-https://corpconnect.it.com}"
 command -v jq >/dev/null || { echo "install jq"; exit 1; }
 
 body=$(jq -n --arg site "$APP_URL" '{
