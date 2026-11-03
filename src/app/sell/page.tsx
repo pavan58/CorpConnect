@@ -12,7 +12,7 @@ export default function SellCampaign() {
     <CampaignPage
       eyebrow="CorpConnect Marketplace · Pune"
       title="Sell your tech to verified peers, right at your campus gate."
-      subtitle="No scam callers, no advance-payment tricks, no strangers at your doorstep. Every buyer has verified their work email at a Pune tech company."
+      subtitle="Skip the scam callers, advance-payment tricks and strangers at your doorstep. Every buyer has verified their work email at a Pune tech company."
       cta="List an item in 2 minutes"
       footnote="Free. Verify with your work email — no ID cards or documents."
       points={[

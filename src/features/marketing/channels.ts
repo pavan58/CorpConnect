@@ -42,7 +42,7 @@ export function channelUrl(base: string, c: Channel) {
 export const COPY: Record<Angle, { headline: string; sub: string; cta: string; points: string[] }> = {
   sell: {
     headline: "Selling your iPhone or ThinkPad?",
-    sub: "Meet verified tech peers right at your campus gate. No scam callers, no random strangers.",
+    sub: "Meet verified tech peers right at your campus gate. Skip the scam callers and random strangers.",
     cta: "Scan to list it free",
     points: ["Only work-email-verified buyers", "Hand over at your campus gate", "Chat in-app, keep your number private"],
   },
