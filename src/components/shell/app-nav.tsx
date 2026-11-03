@@ -23,18 +23,18 @@ function useActive() {
 export function AppNav({ name, company, isStaff }: { name: string; company: string; isStaff: boolean }) {
   const active = useActive();
   return (
-    <header className="sticky top-0 z-30 border-b bg-card/85 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4 sm:px-6">
         <Logo href="/marketplace" />
         <nav className="hidden md:flex items-center gap-1 text-sm">
           {LINKS.map(({ href, label }) => (
             <Link key={href} href={href}
-              className={cn("rounded-md px-3 py-1.5 transition-colors", active(href) ? "bg-accent text-accent-foreground font-medium" : "text-muted-foreground hover:text-foreground")}>
+              className={cn("rounded-md px-3 py-1.5 transition-colors", active(href) ? "text-primary font-semibold" : "text-foreground/80 hover:text-primary")}>
               {label}
             </Link>
           ))}
           {isStaff ? (
-            <Link href="/admin" className={cn("rounded-md px-3 py-1.5 flex items-center gap-1", active("/admin") ? "bg-accent text-accent-foreground font-medium" : "text-muted-foreground hover:text-foreground")}>
+            <Link href="/admin" className={cn("rounded-md px-3 py-1.5 flex items-center gap-1", active("/admin") ? "text-primary font-semibold" : "text-foreground/80 hover:text-primary")}>
               <Shield className="size-3.5" /> Admin
             </Link>
           ) : null}

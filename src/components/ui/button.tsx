@@ -7,9 +7,9 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-primary to-[color-mix(in_oklch,var(--color-primary)_75%,var(--color-sky))] text-primary-foreground hover:brightness-105 shadow-sm",
-        secondary: "bg-muted text-foreground hover:bg-muted/70",
-        outline: "border border-input bg-card hover:bg-muted",
+        default: "bg-primary text-primary-foreground hover:bg-[color-mix(in_srgb,var(--color-primary)_88%,black)] shadow-sm",
+        secondary: "border bg-card text-foreground shadow-xs hover:bg-muted",
+        outline: "border border-input bg-card text-primary hover:bg-muted",
         ghost: "hover:bg-muted",
         destructive: "bg-destructive text-white hover:bg-destructive/90",
         link: "text-primary underline-offset-4 hover:underline px-0",

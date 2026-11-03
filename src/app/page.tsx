@@ -1,132 +1,172 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BadgeCheck, Briefcase, MapPin, MessagesSquare, ShieldCheck, ShoppingBag, Users } from "lucide-react";
+import { BadgeCheck, Briefcase, ChevronRight, MapPin, MessagesSquare, ShieldCheck, ShoppingBag, Users } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { buttonVariants } from "@/components/ui/button";
 import { getViewer } from "@/lib/auth/guards";
+import { createClient } from "@/lib/supabase/server";
 import { ZONES } from "@/lib/pune";
+import { cn } from "@/lib/utils";
 
 export default async function Home() {
   const viewer = await getViewer();
   if (viewer?.profile?.verification_status === "verified_employee") redirect("/marketplace");
 
+  const supabase = await createClient();
+  const { data: companies } = await supabase
+    .from("companies")
+    .select("name, company_domains!inner(domain)")
+    .order("name");
+  const employerNames = (companies ?? []).map((c) => c.name);
+  const marquee = ["Tata Consultancy Services", "Infosys", "Wipro", "Cognizant", "NICE", "Persistent Systems", "Barclays"]
+    .filter((n) => employerNames.includes(n));
+
   const features = [
-    { icon: ShoppingBag, tone: "bg-accent text-accent-foreground", title: "Electronics marketplace", body: "Buy and sell laptops, phones and gear with people from your own tech park. Hand over at a known gate or lobby." },
-    { icon: Briefcase, tone: "bg-highlight-soft text-highlight", title: "Structured referrals", body: "Employees post openings at their company. Request a referral and track it from requested to referred." },
-    { icon: Users, tone: "bg-sky/15 text-sky", title: "Pune tech communities", body: "Hinjawadi Developers, Kharadi & Magarpatta Infra Hub, Pune Tech Circle and more." },
-    { icon: MessagesSquare, tone: "bg-success-soft text-success", title: "Private 1-on-1 chat", body: "Realtime messaging that only the two people in the conversation can read." },
+    { icon: ShoppingBag, art: "art-violet", title: "Electronics marketplace", body: "Buy and sell laptops, phones and gear with people from your own tech park. Hand over at a known gate or lobby." },
+    { icon: Briefcase, art: "art-sunset", title: "Structured referrals", body: "Employees post openings at their company. Request a referral and track it from requested to referred." },
+    { icon: Users, art: "art-ocean", title: "Pune tech communities", body: "Hinjawadi Developers, Kharadi & Magarpatta Infra Hub, Pune Tech Circle and more." },
+    { icon: MessagesSquare, art: "art-mint", title: "Private 1-on-1 chat", body: "Realtime messaging that only the two people in the conversation can read." },
   ];
 
   return (
-    <div className="min-h-dvh bg-hero">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6 py-4">
-        <Logo />
-        <nav className="flex items-center gap-2">
-          <Link href="/login" className={buttonVariants({ variant: "ghost" })}>Sign in</Link>
-          <Link href="/register" className={buttonVariants()}>Join</Link>
-        </nav>
+    <div className="min-h-dvh bg-background">
+      <header className="relative z-20 border-b bg-background/80 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+          <Logo />
+          <nav className="hidden items-center gap-7 text-sm font-medium md:flex">
+            <a href="#features" className="hover:text-primary">Features</a>
+            <a href="#pune" className="hover:text-primary">Pune hubs</a>
+            <a href="#how" className="hover:text-primary">How it works</a>
+          </nav>
+          <div className="flex items-center gap-2">
+            <Link href="/login" className={buttonVariants({ variant: "outline", size: "sm", className: "h-9 border-0 sm:border" })}>Sign in</Link>
+            <Link href="/register" className={buttonVariants({ size: "sm", className: "h-9 group" })}>
+              Join <ChevronRight className="transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          </div>
+        </div>
       </header>
 
       <main>
-        <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 pt-12 pb-16 sm:pt-20 lg:grid-cols-[1.15fr_1fr]">
-          <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
-              <MapPin className="size-3.5" /> Now live in Pune
-            </span>
-            <h1 className="mt-5 text-4xl sm:text-5xl font-semibold tracking-tight leading-tight">
-              The private network for Pune&apos;s <span className="text-gradient">verified tech workforce.</span>
+        {/* Hero framed by thin vertical guide lines */}
+        <section className="relative overflow-hidden">
+          <div aria-hidden className="pointer-events-none absolute inset-0 hidden md:block">
+            <div className="ribbon absolute -right-24 -top-80 h-[72rem] w-[22rem] rotate-[38deg] opacity-95" />
+            <div className="ribbon absolute right-40 -top-96 h-[60rem] w-[9rem] rotate-[38deg] opacity-60 blur-[2px]" />
+          </div>
+          <div aria-hidden className="ribbon pointer-events-none absolute -right-28 -top-40 h-[34rem] w-[10rem] rotate-[38deg] opacity-80 md:hidden" />
+          <div className="relative mx-auto max-w-6xl border-x px-4 sm:px-10 pt-16 pb-20 sm:pt-28 sm:pb-28">
+            <p className="text-sm font-medium">
+              Now live in Pune <span className="text-muted-foreground">· {employerNames.length || 40}+ employers verified by work email</span>
+            </p>
+            <h1 className="mt-6 max-w-3xl text-4xl font-light leading-[1.1] sm:text-6xl">
+              <span className="font-normal text-foreground">The private network for Pune&apos;s tech workforce.</span>{" "}
+              <span className="text-heading-muted">Buy, sell, refer and connect across every IT park — verified by your work email.</span>
             </h1>
-            <p className="mt-5 text-lg text-muted-foreground">
-              Sign up with your work email, enter the 6-digit code we send to your company inbox, and you&apos;re in.
-              No ID cards, no payslips, no uploads.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/register" className={buttonVariants({ size: "lg", className: "shadow-lg shadow-primary/25" })}>Verify with work email</Link>
-              <Link href="/login" className={buttonVariants({ size: "lg", variant: "outline" })}>I have an account</Link>
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              <Link href="/register" className={buttonVariants({ size: "lg", className: "group h-12 px-6" })}>
+                Verify with work email <ChevronRight className="transition-transform group-hover:translate-x-0.5" />
+              </Link>
+              <Link href="/login" className="group inline-flex items-center gap-1 text-sm font-medium text-primary">
+                I already have an account <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
             </div>
-            <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-              <ShieldCheck className="size-4 text-success" /> Personal addresses (Gmail, Outlook, Yahoo, iCloud) are not accepted.
+            <p className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
+              <ShieldCheck className="size-4 text-success" /> No ID cards, payslips or uploads. Gmail, Outlook and other personal addresses aren&apos;t accepted.
             </p>
           </div>
-          <HeroPreview />
         </section>
 
-        <section className="border-y bg-card/80 backdrop-blur">
-          <div className="mx-auto grid max-w-6xl gap-6 px-4 sm:px-6 py-12 sm:grid-cols-2 lg:grid-cols-4">
-            {features.map(({ icon: Icon, tone, title, body }) => (
-              <div key={title} className="rounded-lg p-1">
-                <span className={`inline-flex size-11 items-center justify-center rounded-xl ${tone}`}><Icon className="size-5" /></span>
-                <h2 className="mt-3 font-semibold">{title}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{body}</p>
-              </div>
-            ))}
+        {/* Employer strip */}
+        <section className="border-y bg-background">
+          <div className="mx-auto max-w-6xl border-x px-4 sm:px-10 py-7">
+            <ul className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-base font-semibold tracking-tight text-heading-muted/80 sm:justify-between">
+              {marquee.map((n) => <li key={n}>{n}</li>)}
+              <li className="text-sm font-medium text-primary">+ {Math.max(employerNames.length - marquee.length, 0)} more</li>
+            </ul>
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 sm:px-6 py-14">
-          <h2 className="text-xl font-semibold">Built around Pune&apos;s tech corridors</h2>
-          <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {ZONES.map((z) => (
-              <li key={z.code} className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3 text-sm shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
-                <MapPin className="size-4 text-primary shrink-0" /> {z.name}
-              </li>
-            ))}
-          </ul>
+        {/* Features */}
+        <section id="features" className="bg-muted">
+          <div className="mx-auto max-w-6xl border-x px-4 sm:px-10 py-20">
+            <h2 className="max-w-3xl text-3xl font-light sm:text-4xl">
+              <span className="font-normal">Everything a Pune techie needs.</span>{" "}
+              <span className="text-heading-muted">One trusted network, where everyone is a verified employee.</span>
+            </h2>
+            <div className="mt-12 grid gap-4 sm:grid-cols-2">
+              {features.map(({ icon: Icon, art, title, body }) => (
+                <article key={title} className="overflow-hidden rounded-lg border bg-card shadow-[0_2px_5px_-1px_rgba(50,50,93,0.12),0_1px_3px_-1px_rgba(0,0,0,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_13px_27px_-5px_rgba(50,50,93,0.2),0_8px_16px_-8px_rgba(0,0,0,0.2)]">
+                  <div className={cn("flex h-40 items-center justify-center", art)}>
+                    <span className="flex size-14 items-center justify-center rounded-2xl bg-white/80 text-primary shadow-sm backdrop-blur">
+                      <Icon className="size-6" />
+                    </span>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-normal">{title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
 
-          <ol className="mt-12 grid gap-6 sm:grid-cols-3">
-            {[
-              ["Register", "Name, work email, company, designation and your Pune hub."],
-              ["Enter the code", "We email a 6-digit code to your corporate inbox. It expires in 10 minutes."],
-              ["You're verified", "Your profile shows the Verified employee badge. Start buying, selling and referring."],
-            ].map(([t, b], i) => (
-              <li key={t} className="relative overflow-hidden rounded-lg border bg-card p-5 shadow-sm">
-                <span className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-sky to-highlight" />
-                <span className="flex size-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-sky text-white text-sm font-semibold shadow">{i + 1}</span>
-                <h3 className="mt-3 font-semibold flex items-center gap-1.5">{t}{i === 2 ? <BadgeCheck className="size-4 text-success" /> : null}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{b}</p>
-              </li>
-            ))}
-          </ol>
+        {/* Pune hubs */}
+        <section id="pune" className="border-t">
+          <div className="mx-auto max-w-6xl border-x px-4 sm:px-10 py-20">
+            <p className="text-sm font-semibold text-primary">Pune only, for now</p>
+            <h2 className="mt-2 max-w-3xl text-3xl font-light sm:text-4xl">
+              <span className="font-normal">Built around Pune&apos;s tech corridors.</span>{" "}
+              <span className="text-heading-muted">Listings, jobs and communities are local to where you work.</span>
+            </h2>
+            <ul className="mt-10 grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2 lg:grid-cols-3">
+              {ZONES.map((z) => (
+                <li key={z.code} className="flex items-center gap-3 bg-card px-5 py-4 text-sm">
+                  <MapPin className="size-4 shrink-0 text-primary" /> {z.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* How it works — dark band */}
+        <section id="how" className="bg-[#0a2540] text-white">
+          <div className="relative mx-auto max-w-6xl border-x border-white/10 px-4 sm:px-10 py-20">
+            <div aria-hidden className="ribbon-soft pointer-events-none absolute inset-0 opacity-60" />
+            <div className="relative">
+              <p className="text-sm font-semibold text-[#8c85ff]">How verification works</p>
+              <h2 className="mt-2 max-w-3xl text-3xl font-light sm:text-4xl">
+                <span className="font-normal">Three steps, under a minute.</span>{" "}
+                <span className="text-[#adbdcc]">Your company inbox is the only proof we need.</span>
+              </h2>
+              <ol className="mt-12 grid gap-8 sm:grid-cols-3">
+                {[
+                  ["Register", "Name, work email, company, designation and your Pune hub."],
+                  ["Enter the code", "We email a 6-digit code to your corporate inbox. It expires in 10 minutes."],
+                  ["You're verified", "Your profile gets the Verified employee badge. Start buying, selling and referring."],
+                ].map(([t, b], i) => (
+                  <li key={t} className="border-l border-white/15 pl-5">
+                    <span className="text-sm font-semibold text-[#8c85ff]">0{i + 1}</span>
+                    <h3 className="mt-2 flex items-center gap-1.5 text-lg font-normal">{t}{i === 2 ? <BadgeCheck className="size-4 text-[#5ee0a9]" /> : null}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-[#adbdcc]">{b}</p>
+                  </li>
+                ))}
+              </ol>
+              <Link href="/register" className="group mt-12 inline-flex h-12 items-center gap-2 rounded-md bg-white px-6 text-base font-medium text-[#0a2540] shadow-sm transition-colors hover:bg-[#e6ebf1] [&_svg]:size-4">
+                Get verified <ChevronRight className="transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </div>
+          </div>
         </section>
       </main>
 
       <footer className="border-t">
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 sm:px-6 py-6 text-sm text-muted-foreground sm:flex-row sm:justify-between">
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 border-x px-4 sm:px-10 py-8 text-sm text-muted-foreground sm:flex-row sm:justify-between">
           <span>© {new Date().getFullYear()} CorpConnect · Pune, Maharashtra</span>
-          <span className="flex gap-4"><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></span>
+          <span className="flex gap-5"><Link href="/privacy" className="hover:text-foreground">Privacy</Link><Link href="/terms" className="hover:text-foreground">Terms</Link></span>
         </div>
       </footer>
-    </div>
-  );
-}
-
-/** Decorative preview of the app (sample content, not real data). */
-function HeroPreview() {
-  return (
-    <div aria-hidden className="relative hidden h-[27rem] lg:block">
-      <div className="absolute right-6 top-0 w-72 rotate-2 overflow-hidden rounded-2xl border bg-card shadow-xl">
-        <div className="flex h-36 items-center justify-center bg-gradient-to-br from-accent via-sky/20 to-highlight-soft">
-          <ShoppingBag className="size-12 text-primary/70" />
-        </div>
-        <div className="space-y-1 p-4">
-          <p className="text-lg font-semibold">₹72,000</p>
-          <p className="text-sm font-medium">MacBook Air M2 · 16GB</p>
-          <p className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="size-3" /> EON Kharadi Gate 1</p>
-        </div>
-      </div>
-      <div className="absolute left-0 top-[17.5rem] w-64 -rotate-2 rounded-2xl border bg-card p-4 shadow-xl">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold">Backend Engineer</p>
-          <span className="rounded-full bg-success-soft px-2 py-0.5 text-xs font-medium text-success">Referred</span>
-        </div>
-        <p className="mt-1 text-xs text-muted-foreground">Hinjawadi Phase 3 · Hybrid · 3–6 yrs</p>
-        <div className="mt-3 h-1.5 rounded-full bg-muted"><div className="h-full w-full rounded-full bg-gradient-to-r from-primary to-sky" /></div>
-      </div>
-      <div className="absolute bottom-0 right-0 w-60 space-y-2 rounded-2xl border bg-card p-4 shadow-xl">
-        <div className="w-fit max-w-[85%] rounded-2xl rounded-bl-sm border bg-muted px-3 py-1.5 text-xs">Is it still available?</div>
-        <div className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-3 py-1.5 text-xs text-primary-foreground">Yes! Gate 1 at 6pm? 👋</div>
-        <p className="flex items-center gap-1 text-[11px] text-muted-foreground"><BadgeCheck className="size-3 text-success" /> Both verified employees</p>
-      </div>
     </div>
   );
 }

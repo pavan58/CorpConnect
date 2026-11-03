@@ -7,7 +7,7 @@ export const metadata = { title: "Admin", robots: { index: false } };
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const viewer = await requireAdmin();
   return (
-    <div className="min-h-dvh">
+    <div className="min-h-dvh bg-muted">
       <AppNav name={viewer.profile.full_name} company={viewer.profile.company?.name ?? ""} isStaff />
       <main className="mx-auto max-w-6xl px-4 sm:px-6 py-8">{children}</main>
     </div>
