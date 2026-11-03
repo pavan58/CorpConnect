@@ -148,6 +148,23 @@ select rls_t.ok((select count(*) from public.product_listings) = 0, 'removed lis
 reset role;
 update public.product_listings set status = 'active';
 
+-- ---------------------------------------------------------------- growth: featured + badges + invites
+select rls_t.act_as(:alice);
+select rls_t.ok(rls_t.fails($$update public.product_listings set is_featured = true where seller_id = auth.uid()$$),
+  'seller cannot feature own listing');
+select rls_t.ok(rls_t.fails($$insert into public.product_listings (seller_id, title, description, category, condition, price_inr, zone_code, pickup_point, is_featured)
+  values (auth.uid(), 'Featured hack', 'Trying to self-feature this', 'phones', 'good', 1, 'hinjawadi', 'hjw_ph1_circle', true)$$),
+  'cannot insert a featured listing');
+select rls_t.ok((select invite_code from public.my_invite_stats()) ~ '^[a-z0-9]{8}$', 'verified member has an invite code');
+select rls_t.ok(rls_t.fails('select invite_code from public.profiles'), 'invite codes not readable via profiles');
+select rls_t.ok(rls_t.fails('select signup_source from public.profiles'), 'signup attribution not readable');
+select rls_t.ok((select count(*) from public.profiles where member_number is not null) >= 2, 'member numbers visible for badges');
+reset role;
+select rls_t.act_as(:carol);
+select rls_t.ok((select count(*) from public.my_invite_stats()) = 0, 'unverified users get no invite code');
+reset role;
+select rls_t.ok((select member_number from public.profiles where id = :carol) is null, 'unverified users get no member number');
+
 -- ---------------------------------------------------------------- messaging
 select rls_t.act_as(:bob);
 insert into rls_t.ids select 'conv', public.start_conversation(:alice, (select v from rls_t.ids where k = 'listing'));

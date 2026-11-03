@@ -12,6 +12,7 @@ export type ListingCardData = {
   condition: string;
   pickup_point: string;
   status: string;
+  is_featured?: boolean;
   created_at: string;
   sellerName: string;
   sellerCompany: string;
@@ -27,6 +28,7 @@ export function ListingCard({ l }: { l: ListingCardData }) {
         ) : (
           <div className="flex size-full items-center justify-center text-muted-foreground"><ImageOff className="size-6" /></div>
         )}
+        {l.is_featured && l.status === "active" ? <Badge className="absolute left-2 top-2 bg-primary text-primary-foreground">Featured</Badge> : null}
         {l.status !== "active" ? (
           <Badge variant={l.status === "sold" ? "destructive" : "warning"} className="absolute left-2 top-2 capitalize">{l.status}</Badge>
         ) : null}

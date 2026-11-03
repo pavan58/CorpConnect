@@ -9,13 +9,14 @@ import { startChatWith } from "@/features/messaging/actions";
 import { CreatePostForm } from "@/components/community/create-post-form";
 import { CommentForm } from "@/components/community/comment-form";
 import { ReportButton } from "@/components/common/report-button";
+import { MemberBadges } from "@/components/common/member-badges";
 import { Button } from "@/components/ui/button";
 import { Avatar, EmptyState } from "@/components/ui/misc";
 import { cn, timeAgo } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Community" };
 
-type Author = { id: string; full_name: string; designation: string; company: { name: string } | null } | null;
+type Author = { id: string; full_name: string; designation: string; is_ambassador: boolean; member_number: number | null; company: { name: string } | null } | null;
 type Post = { id: string; body: string; created_at: string; author_id: string; author: Author };
 type Comment = { id: string; post_id: string; body: string; created_at: string; author_id: string; author: { full_name: string } | null };
 
@@ -31,7 +32,7 @@ export default async function CommunityPage({ params }: { params: Promise<{ slug
   const [{ data: membership }, { data: postsRaw }] = await Promise.all([
     supabase.from("community_members").select("user_id").eq("community_id", community.id).eq("user_id", viewer.id).maybeSingle(),
     supabase.from("community_posts")
-      .select("id, body, created_at, author_id, author:profiles!community_posts_author_id_fkey(id, full_name, designation, company:companies(name))")
+      .select("id, body, created_at, author_id, author:profiles!community_posts_author_id_fkey(id, full_name, designation, is_ambassador, member_number, company:companies(name))")
       .eq("community_id", community.id).eq("is_removed", false)
       .order("created_at", { ascending: false }).limit(30),
   ]);
@@ -78,7 +79,7 @@ export default async function CommunityPage({ params }: { params: Promise<{ slug
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-sm">
-                        <span className="font-medium">{p.author?.full_name}</span>
+                        <span className="font-medium">{p.author?.full_name}</span> <MemberBadges isAmbassador={p.author?.is_ambassador} memberNumber={p.author?.member_number} />
                         <span className="text-muted-foreground"> · {p.author?.designation}, {p.author?.company?.name} · {timeAgo(p.created_at)}</span>
                       </p>
                       {mine || isMod ? (

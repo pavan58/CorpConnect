@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/auth/guards";
-import { approveDomain, rejectDomain, resolveReport, setUserRole, setUserStatus } from "@/features/admin/actions";
+import { approveDomain, rejectDomain, resolveReport, setAmbassador, setUserRole, setUserStatus } from "@/features/admin/actions";
+import { LaunchReadiness } from "@/components/admin/launch-readiness";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +19,7 @@ const TARGET_LINK: Record<string, (id: string) => string | null> = {
 };
 
 type Report = { id: string; target_type: string; target_id: string; reason: string; details: string | null; created_at: string; reporter: { full_name: string } | null };
-type UserRow = { id: string; full_name: string; corporate_email: string; designation: string; verification_status: string; role: string; created_at: string; company: { name: string } | null };
+type UserRow = { id: string; full_name: string; corporate_email: string; designation: string; verification_status: string; role: string; is_ambassador: boolean; member_number: number | null; signup_source: string | null; created_at: string; company: { name: string } | null };
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const viewer = await requireAdmin();
@@ -31,7 +32,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
 
   // Members (incl. corporate emails) are listed for admins only, not moderators.
   let usersQ = admin.from("profiles")
-    .select("id, full_name, corporate_email, designation, verification_status, role, created_at, company:companies(name)")
+    .select("id, full_name, corporate_email, designation, verification_status, role, is_ambassador, member_number, signup_source, created_at, company:companies(name)")
     .order("created_at", { ascending: false }).limit(25);
   if (q) usersQ = usersQ.or(`full_name.ilike.%${q}%,corporate_email.ilike.%${q}%`);
 
@@ -45,6 +46,19 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     admin.from("companies").select("id, name").order("name"),
     isAdmin ? usersQ : Promise.resolve({ data: [] }),
   ]);
+  const [{ data: sourceRows }, { data: zoneListings }, { data: hubJobs }] = await Promise.all([
+    admin.from("profiles").select("signup_source, verification_status"),
+    admin.from("product_listings").select("zone_code").eq("status", "active"),
+    admin.from("job_listings").select("hub_code").eq("status", "open"),
+  ]);
+  const bySource = new Map<string, { total: number; verified: number }>();
+  for (const r of sourceRows ?? []) {
+    const k = r.signup_source ?? "direct";
+    const e = bySource.get(k) ?? { total: 0, verified: 0 };
+    e.total++; if (r.verification_status === "verified_employee") e.verified++;
+    bySource.set(k, e);
+  }
+  const sources = [...bySource.entries()].sort((a, b) => b[1].verified - a[1].verified);
   const reports = (reportsRes.data ?? []) as unknown as Report[];
   const users = (usersRes.data ?? []) as unknown as UserRow[];
   // group pending domain requests by domain
@@ -67,6 +81,35 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           <Card key={l}><CardContent className="pt-5"><p className="text-xs text-muted-foreground">{l}</p><p className="text-2xl font-semibold tabular-nums">{v ?? 0}</p></CardContent></Card>
         ))}
       </div>
+
+      <LaunchReadiness
+        listings={listings.count ?? 0}
+        jobs={jobs.count ?? 0}
+        members={verified.count ?? 0}
+        hinjawadiListings={(zoneListings ?? []).filter((z) => z.zone_code === "hinjawadi").length}
+        kharadiListings={(zoneListings ?? []).filter((z) => z.zone_code === "kharadi_magarpatta").length}
+        hinjawadiJobs={(hubJobs ?? []).filter((j) => j.hub_code.startsWith("hinjawadi")).length}
+        kharadiJobs={(hubJobs ?? []).filter((j) => ["kharadi_eon", "kharadi_wtc", "magarpatta"].includes(j.hub_code)).length}
+      />
+
+      <Card className="mb-6">
+        <CardHeader className="flex-row items-center justify-between sm:flex sm:space-y-0">
+          <CardTitle>Sign-ups by channel</CardTitle>
+          <Link href="/admin/marketing" className="text-sm font-medium text-primary">QR codes & campaign links →</Link>
+        </CardHeader>
+        <CardContent>
+          {sources.length === 0 ? <p className="text-sm text-muted-foreground">No sign-ups yet.</p> : (
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs text-muted-foreground"><tr><th className="py-1.5">Channel</th><th>Verified</th><th>Started sign-up</th></tr></thead>
+              <tbody className="divide-y">
+                {sources.map(([k, v]) => (
+                  <tr key={k}><td className="py-1.5 font-mono text-xs">{k}</td><td className="font-semibold tabular-nums">{v.verified}</td><td className="tabular-nums text-muted-foreground">{v.total}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
@@ -129,14 +172,15 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="text-left text-xs text-muted-foreground"><tr><th className="py-2 pr-3">Name</th><th className="pr-3">Company</th><th className="pr-3">Status</th><th className="pr-3">Role</th><th /></tr></thead>
+            <thead className="text-left text-xs text-muted-foreground"><tr><th className="py-2 pr-3">Name</th><th className="pr-3">Company</th><th className="pr-3">Status</th><th className="pr-3">Role</th><th className="pr-3">Source</th><th /></tr></thead>
             <tbody className="divide-y">
               {users.map((u) => (
                 <tr key={u.id}>
                   <td className="py-2 pr-3"><p className="font-medium">{u.full_name}</p><p className="text-xs text-muted-foreground">{u.corporate_email}</p></td>
                   <td className="pr-3">{u.company?.name}</td>
                   <td className="pr-3"><Badge variant={u.verification_status === "verified_employee" ? "success" : u.verification_status === "suspended" ? "destructive" : "secondary"}>{u.verification_status.replace("_", " ")}</Badge></td>
-                  <td className="pr-3 capitalize">{u.role}</td>
+                  <td className="pr-3 capitalize">{u.role}{u.is_ambassador ? <Badge className="ml-1">Ambassador</Badge> : null}</td>
+                  <td className="pr-3 font-mono text-xs text-muted-foreground">{u.signup_source ?? "direct"}</td>
                   <td className="py-2 text-right whitespace-nowrap">
                     {isAdmin && u.id !== viewer.id && u.role !== "admin" ? (
                       <span className="inline-flex gap-1">
@@ -144,6 +188,11 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
                           <form action={setUserStatus.bind(null, u.id, "suspended")}><Button size="sm" variant="ghost" className="text-destructive">Suspend</Button></form>
                         ) : u.verification_status === "suspended" ? (
                           <form action={setUserStatus.bind(null, u.id, "verified_employee")}><Button size="sm" variant="ghost">Reinstate</Button></form>
+                        ) : null}
+                        {u.verification_status === "verified_employee" ? (
+                          <form action={setAmbassador.bind(null, u.id, !u.is_ambassador)}>
+                            <Button size="sm" variant="ghost">{u.is_ambassador ? "Remove ambassador" : "Make ambassador"}</Button>
+                          </form>
                         ) : null}
                         <form action={setUserRole.bind(null, u.id, u.role === "moderator" ? "member" : "moderator")}>
                           <Button size="sm" variant="ghost">{u.role === "moderator" ? "Remove mod" : "Make mod"}</Button>

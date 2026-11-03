@@ -15,13 +15,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Alert, Avatar } from "@/components/ui/misc";
 import { ReportButton } from "@/components/common/report-button";
 import { PhotoGallery } from "@/components/marketplace/photo-gallery";
+import { MemberBadges } from "@/components/common/member-badges";
+import { setListingFeatured } from "@/features/admin/actions";
 
 export const metadata: Metadata = { title: "Listing" };
 
 type Listing = {
   id: string; seller_id: string; title: string; description: string; category: string; condition: string;
-  price_inr: number; negotiable: boolean; zone_code: string; pickup_point: string; status: string; created_at: string;
-  seller: { id: string; full_name: string; designation: string; work_location_pune: string; company: { name: string } | null } | null;
+  price_inr: number; negotiable: boolean; zone_code: string; pickup_point: string; status: string; is_featured: boolean; created_at: string;
+  seller: { id: string; full_name: string; designation: string; work_location_pune: string; is_ambassador: boolean; member_number: number | null; company: { name: string } | null } | null;
   product_images: { storage_path: string; position: number }[];
 };
 
@@ -35,7 +37,7 @@ export default async function ListingPage({ params, searchParams }: { params: Pr
   const [{ data }, { data: saved }] = await Promise.all([
     supabase
       .from("product_listings")
-      .select("id, seller_id, title, description, category, condition, price_inr, negotiable, zone_code, pickup_point, status, created_at, seller:profiles!product_listings_seller_id_fkey(id, full_name, designation, work_location_pune, company:companies(name)), product_images(storage_path, position)")
+      .select("id, seller_id, title, description, category, condition, price_inr, negotiable, zone_code, pickup_point, status, is_featured, created_at, seller:profiles!product_listings_seller_id_fkey(id, full_name, designation, work_location_pune, is_ambassador, member_number, company:companies(name)), product_images(storage_path, position)")
       .eq("id", id)
       .maybeSingle(),
     supabase.from("saved_listings").select("listing_id").eq("user_id", viewer.id).eq("listing_id", id).maybeSingle(),
@@ -62,6 +64,7 @@ export default async function ListingPage({ params, searchParams }: { params: Pr
               <Badge variant="secondary">{categoryName(l.category)}</Badge>
               <Badge variant="secondary">{conditionName(l.condition)}</Badge>
               {l.status !== "active" ? <Badge variant={l.status === "sold" ? "destructive" : "warning"} className="capitalize">{l.status}</Badge> : null}
+              {l.is_featured ? <Badge>Featured</Badge> : null}
             </div>
             <h1 className="mt-3 text-2xl font-semibold tracking-tight">{l.title}</h1>
             <p className="mt-2 text-3xl font-semibold">{formatInr(l.price_inr)} {l.negotiable ? <span className="text-sm font-normal text-muted-foreground">negotiable</span> : null}</p>
@@ -79,7 +82,7 @@ export default async function ListingPage({ params, searchParams }: { params: Pr
             <div className="flex items-center gap-3">
               <Avatar name={l.seller.full_name} />
               <div className="text-sm">
-                <p className="font-medium flex items-center gap-1">{l.seller.full_name} <BadgeCheck className="size-4 text-success" aria-label="Verified employee" /></p>
+                <p className="font-medium flex items-center gap-1">{l.seller.full_name} <BadgeCheck className="size-4 text-success" aria-label="Verified employee" /> <MemberBadges isAmbassador={l.seller.is_ambassador} memberNumber={l.seller.member_number} /></p>
                 <p className="text-muted-foreground">{l.seller.designation} · {l.seller.company?.name} · {hubName(l.seller.work_location_pune)}</p>
               </div>
             </div>
@@ -114,7 +117,14 @@ export default async function ListingPage({ params, searchParams }: { params: Pr
             <p className="mt-1 whitespace-pre-line text-sm text-muted-foreground">{l.description}</p>
           </div>
 
-          {!isMine ? <div className="flex justify-end"><ReportButton targetType="listing" targetId={l.id} label="Report listing" /></div> : null}
+          <div className="flex items-center justify-between gap-2">
+            {viewer.profile.role !== "member" ? (
+              <form action={setListingFeatured.bind(null, l.id, !l.is_featured)}>
+                <Button variant="outline" size="sm">{l.is_featured ? "Unfeature" : "Feature this listing"}</Button>
+              </form>
+            ) : <span />}
+            {!isMine ? <ReportButton targetType="listing" targetId={l.id} label="Report listing" /> : null}
+          </div>
         </div>
       </div>
     </div>

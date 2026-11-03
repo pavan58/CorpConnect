@@ -117,3 +117,22 @@ export async function setUserRole(userId: string, role: "member" | "moderator") 
   await audit(viewer.id, `user.role.${role}`, userId);
   revalidatePath("/admin");
 }
+
+export async function setListingFeatured(listingId: string, featured: boolean) {
+  const viewer = await assertStaff();
+  if (!uuid.safeParse(listingId).success) return;
+  const admin = createAdminClient();
+  await admin.from("product_listings").update({ is_featured: featured }).eq("id", listingId).eq("status", "active");
+  await audit(viewer.id, featured ? "listing.featured" : "listing.unfeatured", listingId);
+  revalidatePath(`/marketplace/${listingId}`);
+  revalidatePath("/marketplace");
+}
+
+export async function setAmbassador(userId: string, value: boolean) {
+  const viewer = await assertStaff("admin");
+  if (!uuid.safeParse(userId).success) return;
+  const admin = createAdminClient();
+  await admin.from("profiles").update({ is_ambassador: value }).eq("id", userId).eq("verification_status", "verified_employee");
+  await audit(viewer.id, value ? "user.ambassador.on" : "user.ambassador.off", userId);
+  revalidatePath("/admin");
+}

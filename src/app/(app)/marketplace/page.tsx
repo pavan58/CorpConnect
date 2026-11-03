@@ -17,7 +17,7 @@ type SP = { zone?: string; category?: string; q?: string; max?: string; saved?: 
 
 type Row = {
   id: string; title: string; price_inr: number; negotiable: boolean; condition: string; pickup_point: string;
-  status: string; created_at: string;
+  status: string; is_featured: boolean; created_at: string;
   seller: { full_name: string; company: { name: string } | null } | null;
   product_images: { storage_path: string; position: number }[];
 };
@@ -29,7 +29,8 @@ export default async function MarketplacePage({ searchParams }: { searchParams: 
 
   let query = supabase
     .from("product_listings")
-    .select("id, title, price_inr, negotiable, condition, pickup_point, status, created_at, seller:profiles!product_listings_seller_id_fkey(full_name, company:companies(name)), product_images(storage_path, position)")
+    .select("id, title, price_inr, negotiable, condition, pickup_point, status, is_featured, created_at, seller:profiles!product_listings_seller_id_fkey(full_name, company:companies(name)), product_images(storage_path, position)")
+    .order("is_featured", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(60);
 

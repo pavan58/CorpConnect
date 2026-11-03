@@ -1,6 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { ATTRIBUTION_COOKIE, decodeAttribution } from "@/lib/attribution";
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
@@ -187,7 +189,19 @@ export async function registerEmployee(_prev: ActionState, formData: FormData): 
   }
   const userId = created.user.id;
 
+  const cookieStore = await cookies();
+  const attrib = decodeAttribution(cookieStore.get(ATTRIBUTION_COOKIE)?.value);
+  let referredBy: string | null = null;
+  if (attrib.ref) {
+    const { data: inviter } = await admin.from("profiles").select("id").eq("invite_code", attrib.ref)
+      .eq("verification_status", "verified_employee").maybeSingle();
+    referredBy = inviter?.id ?? null;
+  }
+
   const { error: profileErr } = await admin.from("profiles").insert({
+    signup_source: attrib.source ?? null,
+    signup_campaign: attrib.campaign ?? null,
+    referred_by: referredBy,
     id: userId,
     full_name: input.fullName,
     corporate_email: input.corporateEmail,
@@ -213,6 +227,7 @@ export async function registerEmployee(_prev: ActionState, formData: FormData): 
     return { message: "Account created. Sign in to finish verifying your email." };
   }
 
+  cookieStore.delete(ATTRIBUTION_COOKIE);
   redirect(otp.ok ? "/verify" : `/verify?error=${encodeURIComponent(otp.error)}`);
 }
 

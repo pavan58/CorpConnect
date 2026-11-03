@@ -23,7 +23,7 @@ function useActive() {
 export function AppNav({ name, company, isStaff }: { name: string; company: string; isStaff: boolean }) {
   const active = useActive();
   return (
-    <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur print:hidden">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4 sm:px-6">
         <Logo href="/marketplace" />
         <nav className="hidden md:flex items-center gap-1 text-sm">
@@ -62,7 +62,7 @@ export function MobileNav() {
   const active = useActive();
   const items = [...LINKS, { href: "/profile", label: "Profile", icon: User }];
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t bg-card/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">
+    <nav className="print:hidden md:hidden fixed bottom-0 inset-x-0 z-30 border-t bg-card/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">
       <ul className="grid grid-cols-5">
         {items.map(({ href, label, icon: Icon }) => (
           <li key={href}>
