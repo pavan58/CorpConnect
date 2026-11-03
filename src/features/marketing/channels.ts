@@ -39,20 +39,23 @@ export function channelUrl(base: string, c: Channel) {
   return u.toString();
 }
 
-export const COPY: Record<Angle, { headline: string; sub: string; cta: string }> = {
+export const COPY: Record<Angle, { headline: string; sub: string; cta: string; points: string[] }> = {
   sell: {
     headline: "Selling your iPhone or ThinkPad?",
     sub: "Meet verified tech peers right at your campus gate. No scam callers, no random strangers.",
     cta: "Scan to list it free",
+    points: ["Only work-email-verified buyers", "Hand over at your campus gate", "Chat in-app, keep your number private"],
   },
   referrals: {
     headline: "Need an internal referral?",
     sub: "Ask verified engineers at Pune's top MNC and product companies directly. Track every request.",
     cta: "Scan to find a referrer",
+    points: ["Openings posted by real employees", "Request directly, no cold InMails", "Track: requested → referred"],
   },
   general: {
     headline: "Pune's private network for verified techies",
     sub: "Buy & sell gear safely, get internal referrals, join local tech communities. Verified by work email.",
     cta: "Scan to join free",
+    points: ["Electronics marketplace", "Internal job referrals", "Hinjawadi, Kharadi, Magarpatta & more"],
   },
 };

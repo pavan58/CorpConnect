@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, Check } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/guards";
 import { CHANNELS, COPY, channelUrl } from "@/features/marketing/channels";
 import { qrSvg } from "@/features/marketing/qr";
@@ -16,8 +16,16 @@ function Flyer({ svg, angle, short, big }: { svg: string; angle: keyof typeof CO
       <p className={`relative font-semibold text-[#533afd] ${big ? "text-base" : "text-xs"}`}>CorpConnect · Pune</p>
       <h2 className={`relative mt-2 font-semibold leading-tight ${big ? "text-4xl" : "text-xl"}`}>{copy.headline}</h2>
       <p className={`relative mt-2 text-[#425466] ${big ? "text-lg" : "text-[11px] leading-snug"}`}>{copy.sub}</p>
+      <ul className={`relative mt-5 space-y-2 ${big ? "text-lg" : "text-xs"}`}>
+        {copy.points.map((pt) => (
+          <li key={pt} className="flex items-center gap-2">
+            <span className={`flex shrink-0 items-center justify-center rounded-full bg-[#f0eeff] text-[#533afd] ${big ? "size-7" : "size-5"}`}><Check className={big ? "size-4" : "size-3"} /></span>
+            {pt}
+          </li>
+        ))}
+      </ul>
       <div className="relative mt-auto flex items-end gap-4 pt-4">
-        <div className={big ? "w-56" : "w-28"} dangerouslySetInnerHTML={{ __html: svg }} />
+        <div className={big ? "w-60" : "w-32"} dangerouslySetInnerHTML={{ __html: svg }} />
         <div className="pb-1">
           <p className={`font-semibold ${big ? "text-xl" : "text-sm"}`}>{copy.cta}</p>
           <p className={`font-mono text-[#533afd] ${big ? "text-base" : "text-[10px]"}`}>{short}</p>
